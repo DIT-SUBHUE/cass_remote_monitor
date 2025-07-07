@@ -49,6 +49,10 @@ python start.py
   - Status da memória RAM (total, usado, disponível)
   - Status do armazenamento (total, usado, livre)
   - Redes conectadas (WiFi, Ethernet, etc.)
+  - Status do processador (núcleos, uso, frequência)
+  - Status da memória RAM (total, usado, disponível)
+  - Status do armazenamento (total, usado, livre)
+  - Redes conectadas (WiFi, Ethernet, etc.)
 - `/screenshot` - Captura e envia screenshot da tela:
   - Suporte multiplataforma (Windows/Linux/macOS)
   - Remoção automática de arquivos temporários
@@ -59,10 +63,6 @@ python start.py
   - Suporte a X11 e Wayland
   - Fallback para informações do Zellij
   - Múltiplos métodos de captura (scrot, gnome-screenshot, ImageMagick, etc.)
-  - Status do processador (núcleos, uso, frequência)
-  - Status da memória RAM (total, usado, disponível)
-  - Status do armazenamento (total, usado, livre)
-  - Redes conectadas (WiFi, Ethernet, etc.)
 
 ## Características
 
