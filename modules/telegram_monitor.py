@@ -18,6 +18,7 @@ from .functions.ping import ping_response
 from .functions.screenshot import cleanup_screenshot, take_screenshot
 from .functions.system_status import system_status
 from .functions.wsl_screenshot import wsl_screenshot, cleanup_wsl_screenshot, capture_zellij_sessions
+from .functions.log_monitor import get_tails, format_log_message, get_logs_summary, format_log_results_for_telegram
 
 load_dotenv()
 
@@ -65,6 +66,11 @@ class TelegramMonitor:
         # Trigger para o comando /wsl_screenshot
         self.application.add_handler(
             CommandHandler("wsl_screenshot", self._handle_wsl_screenshot)
+        )
+
+        # Trigger para o comando /logs
+        self.application.add_handler(
+            CommandHandler("logs", self._handle_logs)
         )
 
         # Handler para mensagens em geral (para triggers customizados)
@@ -246,6 +252,68 @@ class TelegramMonitor:
             try:
                 await update.message.reply_text(
                     "❌ Erro ao capturar screenshot WSL. Tente novamente."
+                )
+            except:
+                pass
+
+    async def _handle_logs(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        """
+        Handler para o comando /logs.
+        Busca e envia os últimos registros de log dos diretórios especificados.
+        """
+        try:
+            # Verifica se a mensagem veio do chat correto
+            if str(update.effective_chat.id) == self.chat_id:
+                logger.info(f"Comando /logs solicitado por {update.effective_user.first_name}")
+                
+                # Envia mensagem de aguarde
+                await update.message.reply_text("📋 Buscando logs dos diretórios...")
+                
+                # Primeiro, envia o resumo
+                summary = get_logs_summary()
+                await update.message.reply_text(summary)
+                
+                # Busca os logs
+                logs = get_tails(15)  # Últimas 15 linhas de cada arquivo
+                
+                if not logs:
+                    await update.message.reply_text("❌ Nenhum log encontrado.")
+                    return
+                
+                # Formata as mensagens
+                messages = format_log_results_for_telegram(logs)
+                
+                # Envia cada mensagem separadamente
+                for message in messages:
+                    try:
+                        await update.message.reply_text(message)
+                        
+                        # Pequeno delay para evitar spam
+                        await asyncio.sleep(0.5)
+                        
+                    except Exception as e:
+                        # Se falhar, tenta enviar uma versão simplificada
+                        try:
+                            simple_message = f"❌ Erro ao enviar log: {str(e)}\n\n{message[:500]}..."
+                            await update.message.reply_text(simple_message)
+                        except:
+                            await update.message.reply_text(
+                                f"❌ Erro crítico ao enviar log: {str(e)}"
+                            )
+                
+                logger.info(f"Logs enviados para {update.effective_user.first_name}")
+                
+            else:
+                logger.warning(
+                    f"Comando /logs recebido de chat não autorizado: {update.effective_chat.id}"
+                )
+                
+        except Exception as e:
+            logger.error(f"Erro ao processar comando /logs: {e}")
+            # Envia mensagem de erro para o usuário
+            try:
+                await update.message.reply_text(
+                    "❌ Erro ao buscar logs. Tente novamente."
                 )
             except:
                 pass

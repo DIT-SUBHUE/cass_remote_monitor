@@ -30,6 +30,7 @@ async def main():
     print("   • /status - Mostra informações do sistema")
     print("   • /screenshot - Captura screenshot da tela")
     print("   • /wsl_screenshot - Captura screenshot via WSL")
+    print("   • /logs - Mostra últimos registros dos logs")
     print()
     print("⏹️  Para parar o monitor, pressione Ctrl+C")
     print("=" * 50)
